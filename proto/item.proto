@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package item;
+
+option go_package = "keeper/gen/service";
+
+message Metadata {
+  string key = 1;
+  string value = 2;
+}
+
+message Item {
+  string name = 1;
+  string type = 2;
+  bytes data = 3;
+  repeated Metadata metadata = 4;
+}
+
+message ItemList {
+  string name = 1;
+  string type = 2;
+}
+
+message CreateItemRequest {
+  Item item = 1;
+}
+
+message CreateItemResponse {
+}
+
+message UpdateItemRequest {
+  Item item = 1;
+}
+
+message UpdateItemResponse {
+}
+
+message GetItemRequest {
+  string name = 1;
+}
+
+message GetItemResponse {
+  Item item = 1;
+}
+
+message DeleteItemRequest {
+  string name = 1;
+}
+
+message DeleteItemResponse {
+}
+
+message GetItemsListRequest {
+}
+
+message GetItemsListResponse {
+  repeated ItemList items = 1;
+}

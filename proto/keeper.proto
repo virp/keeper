@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+import "item.proto";
+
+package keeper;
+
+option go_package = "keeper/gen/service";
+
+service KeeperService {
+  rpc CreateItem(item.CreateItemRequest) returns (item.CreateItemResponse);
+  rpc UpdateItem(item.UpdateItemRequest) returns (item.UpdateItemResponse);
+  rpc GetItem(item.GetItemRequest) returns (item.GetItemResponse);
+  rpc DeleteItem(item.DeleteItemRequest) returns (item.DeleteItemResponse);
+  rpc GetItemsList(item.GetItemsListRequest) returns (item.GetItemsListResponse);
+}
