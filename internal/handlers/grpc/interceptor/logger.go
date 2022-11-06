@@ -6,6 +6,7 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/peer"
+	"google.golang.org/grpc/status"
 )
 
 func Logger() grpc.UnaryServerInterceptor {
@@ -16,7 +17,12 @@ func Logger() grpc.UnaryServerInterceptor {
 		}
 		log.Printf("request started, method: %s, client: %s", info.FullMethod, clientIP)
 		h, err := handler(ctx, req)
-		log.Printf("request completed, method: %s, client: %s", info.FullMethod, clientIP)
+		code := "OK"
+		st, ok := status.FromError(err)
+		if ok {
+			code = st.Code().String()
+		}
+		log.Printf("request completed, code: %s, method: %s, client: %s", code, info.FullMethod, clientIP)
 		return h, err
 	}
 }

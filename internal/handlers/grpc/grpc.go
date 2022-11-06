@@ -7,9 +7,18 @@ import (
 	"google.golang.org/grpc"
 
 	pb "keeper/gen/service"
+	"keeper/internal/entity"
 	"keeper/internal/handlers/grpc/interceptor"
 	"keeper/internal/services"
 )
+
+type AuthService interface {
+	Auth(ctx context.Context, login string, password string) (string, error)
+}
+
+type TokenService interface {
+	GetUser(ctx context.Context, token string) (entity.User, error)
+}
 
 type ItemService interface {
 	Create(ctx context.Context, userID string, item services.Item) error
@@ -21,13 +30,17 @@ type ItemService interface {
 
 type KeeperServer struct {
 	pb.UnimplementedKeeperServiceServer
-	server      *grpc.Server
-	itemService ItemService
+	server       *grpc.Server
+	authService  AuthService
+	tokenService TokenService
+	itemService  ItemService
 }
 
-func NewKeeperServer(itemService ItemService) *KeeperServer {
+func NewKeeperServer(authService AuthService, tokenService TokenService, itemService ItemService) *KeeperServer {
 	s := KeeperServer{
-		itemService: itemService,
+		authService:  authService,
+		tokenService: tokenService,
+		itemService:  itemService,
 	}
 	return &s
 }
@@ -35,8 +48,16 @@ func NewKeeperServer(itemService ItemService) *KeeperServer {
 func (s *KeeperServer) Serve(listen net.Listener) error {
 	server := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
-			interceptor.Metrics(),
 			interceptor.Logger(),
+			interceptor.Errors(),
+			interceptor.Metrics(),
+			interceptor.Panics(),
+			interceptor.Auth(
+				s.tokenService,
+				map[string]bool{
+					"/keeper.KeeperService/Login": true,
+				},
+			),
 		),
 	)
 	pb.RegisterKeeperServiceServer(server, s)
@@ -48,6 +69,11 @@ func (s *KeeperServer) Shutdown() {
 	s.server.GracefulStop()
 }
 
-func getUserIDFromContext(_ context.Context) string {
-	return ""
+// TODO: Improve User ID extract logic
+func getUserIDFromContext(ctx context.Context) string {
+	userID, ok := ctx.Value("userID").(string)
+	if !ok {
+		return ""
+	}
+	return userID
 }

@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package auth;
+
+option go_package = "keeper/gen/service";
+
+message LoginRequest {
+  string login = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  string token = 1;
+}

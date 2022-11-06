@@ -7,14 +7,6 @@ import (
 	"keeper/internal/entity"
 )
 
-type ItemRepository interface {
-	Create(ctx context.Context, item entity.Item) error
-	Update(ctx context.Context, item entity.Item) error
-	GetByUserIDAndName(ctx context.Context, userID string, name string) (entity.Item, error)
-	Delete(ctx context.Context, item entity.Item) error
-	FindByUser(ctx context.Context, userID string) ([]entity.Item, error)
-}
-
 type ItemService struct {
 	idGenerator    IdGenerator
 	itemRepository ItemRepository

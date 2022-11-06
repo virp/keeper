@@ -22,6 +22,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type KeeperServiceClient interface {
+	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 	CreateItem(ctx context.Context, in *CreateItemRequest, opts ...grpc.CallOption) (*CreateItemResponse, error)
 	UpdateItem(ctx context.Context, in *UpdateItemRequest, opts ...grpc.CallOption) (*UpdateItemResponse, error)
 	GetItem(ctx context.Context, in *GetItemRequest, opts ...grpc.CallOption) (*GetItemResponse, error)
@@ -35,6 +36,15 @@ type keeperServiceClient struct {
 
 func NewKeeperServiceClient(cc grpc.ClientConnInterface) KeeperServiceClient {
 	return &keeperServiceClient{cc}
+}
+
+func (c *keeperServiceClient) Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error) {
+	out := new(LoginResponse)
+	err := c.cc.Invoke(ctx, "/keeper.KeeperService/Login", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *keeperServiceClient) CreateItem(ctx context.Context, in *CreateItemRequest, opts ...grpc.CallOption) (*CreateItemResponse, error) {
@@ -86,6 +96,7 @@ func (c *keeperServiceClient) GetItemsList(ctx context.Context, in *GetItemsList
 // All implementations must embed UnimplementedKeeperServiceServer
 // for forward compatibility
 type KeeperServiceServer interface {
+	Login(context.Context, *LoginRequest) (*LoginResponse, error)
 	CreateItem(context.Context, *CreateItemRequest) (*CreateItemResponse, error)
 	UpdateItem(context.Context, *UpdateItemRequest) (*UpdateItemResponse, error)
 	GetItem(context.Context, *GetItemRequest) (*GetItemResponse, error)
@@ -98,6 +109,9 @@ type KeeperServiceServer interface {
 type UnimplementedKeeperServiceServer struct {
 }
 
+func (UnimplementedKeeperServiceServer) Login(context.Context, *LoginRequest) (*LoginResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
+}
 func (UnimplementedKeeperServiceServer) CreateItem(context.Context, *CreateItemRequest) (*CreateItemResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateItem not implemented")
 }
@@ -124,6 +138,24 @@ type UnsafeKeeperServiceServer interface {
 
 func RegisterKeeperServiceServer(s grpc.ServiceRegistrar, srv KeeperServiceServer) {
 	s.RegisterService(&KeeperService_ServiceDesc, srv)
+}
+
+func _KeeperService_Login_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LoginRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KeeperServiceServer).Login(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/keeper.KeeperService/Login",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KeeperServiceServer).Login(ctx, req.(*LoginRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _KeeperService_CreateItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -223,6 +255,10 @@ var KeeperService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "keeper.KeeperService",
 	HandlerType: (*KeeperServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Login",
+			Handler:    _KeeperService_Login_Handler,
+		},
 		{
 			MethodName: "CreateItem",
 			Handler:    _KeeperService_CreateItem_Handler,

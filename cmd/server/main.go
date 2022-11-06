@@ -26,9 +26,25 @@ func run() error {
 		panic(err)
 	}
 
+	idGenerator := services.UuidGenerator{}
+	passwordHasher := services.BCryptPasswordHasher{
+		Cost: 13,
+	}
+	userRepository := memory.NewUserMemoryRepository()
+	tokenRepository := memory.NewTokenMemoryRepository()
+	authService := services.NewAuthService(
+		&idGenerator,
+		&passwordHasher,
+		userRepository,
+		tokenRepository,
+	)
+	tokenService := services.NewTokenService(
+		userRepository,
+		tokenRepository,
+	)
 	itemRepository := memory.NewItemMemoryRepository()
-	itemService := services.NewItemService(&services.UuidGenerator{}, itemRepository)
-	s := grpc.NewKeeperServer(itemService)
+	itemService := services.NewItemService(&idGenerator, itemRepository)
+	s := grpc.NewKeeperServer(authService, tokenService, itemService)
 
 	serverError := make(chan error, 1)
 	shutdown := make(chan os.Signal, 1)

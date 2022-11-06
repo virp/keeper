@@ -1,12 +1,15 @@
 syntax = "proto3";
 
 import "item.proto";
+import "auth.proto";
 
 package keeper;
 
 option go_package = "keeper/gen/service";
 
 service KeeperService {
+  rpc Login(auth.LoginRequest) returns (auth.LoginResponse);
+
   rpc CreateItem(item.CreateItemRequest) returns (item.CreateItemResponse);
   rpc UpdateItem(item.UpdateItemRequest) returns (item.UpdateItemResponse);
   rpc GetItem(item.GetItemRequest) returns (item.GetItemResponse);

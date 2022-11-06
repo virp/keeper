@@ -11,9 +11,3 @@ type Item struct {
 	Data     []byte
 	Metadata []Metadata
 }
-
-type User struct {
-	ID           string
-	Login        string
-	PasswordHash string
-}
