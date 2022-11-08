@@ -8,7 +8,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"keeper/internal/handlers/grpc"
+	"keeper/internal/handlers/server"
 	"keeper/internal/repository/memory"
 	"keeper/internal/services"
 )
@@ -44,7 +44,7 @@ func run() error {
 	)
 	itemRepository := memory.NewItemMemoryRepository()
 	itemService := services.NewItemService(&idGenerator, itemRepository)
-	s := grpc.NewKeeperServer(authService, tokenService, itemService)
+	s := server.NewKeeperServer(authService, tokenService, itemService)
 
 	serverError := make(chan error, 1)
 	shutdown := make(chan os.Signal, 1)

@@ -1,4 +1,4 @@
-package grpc
+package server
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 
 	pb "keeper/gen/service"
 	"keeper/internal/entity"
-	"keeper/internal/handlers/grpc/interceptor"
+	"keeper/internal/handlers/server/interceptor"
 	"keeper/internal/services"
 )
 
