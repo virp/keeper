@@ -3,8 +3,8 @@ package interceptor
 import (
 	"context"
 	"errors"
-	"log"
 
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -13,11 +13,12 @@ import (
 	"keeper/internal/services"
 )
 
-func Errors() grpc.UnaryServerInterceptor {
+func Errors(log *zap.SugaredLogger) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		resp, err := handler(ctx, req)
 		if err != nil {
-			log.Printf("request error: %s, method: %s", err, info.FullMethod)
+			v := GetValues(ctx)
+			log.Errorw("ERROR", "trace_d", v.TraceID, "message", err)
 
 			_, isStatusError := status.FromError(err)
 			var wrappedError error

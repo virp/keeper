@@ -2,8 +2,10 @@ package server
 
 import (
 	"context"
+	"errors"
 	"net"
 
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
 	pb "keeper/gen/service"
@@ -29,19 +31,28 @@ type ItemService interface {
 	List(ctx context.Context, userID string) ([]services.Item, error)
 }
 
+type KeeperServerConfig struct {
+	Log   *zap.SugaredLogger
+	Auth  AuthService
+	Token TokenService
+	Item  ItemService
+}
+
 type KeeperServer struct {
 	pb.UnimplementedKeeperServiceServer
 	server       *grpc.Server
+	log          *zap.SugaredLogger
 	authService  AuthService
 	tokenService TokenService
 	itemService  ItemService
 }
 
-func NewKeeperServer(authService AuthService, tokenService TokenService, itemService ItemService) *KeeperServer {
+func NewKeeperServer(cfg KeeperServerConfig) *KeeperServer {
 	s := KeeperServer{
-		authService:  authService,
-		tokenService: tokenService,
-		itemService:  itemService,
+		log:          cfg.Log,
+		authService:  cfg.Auth,
+		tokenService: cfg.Token,
+		itemService:  cfg.Item,
 	}
 	return &s
 }
@@ -49,9 +60,9 @@ func NewKeeperServer(authService AuthService, tokenService TokenService, itemSer
 func (s *KeeperServer) Serve(listen net.Listener) error {
 	server := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
-			interceptor.Logger(),
-			interceptor.Errors(),
-			interceptor.Metrics(),
+			interceptor.Context(),
+			interceptor.Logger(s.log),
+			interceptor.Errors(s.log),
 			interceptor.Panics(),
 			interceptor.Auth(
 				s.tokenService,
@@ -67,8 +78,26 @@ func (s *KeeperServer) Serve(listen net.Listener) error {
 	return server.Serve(listen)
 }
 
-func (s *KeeperServer) Shutdown() {
-	s.server.GracefulStop()
+func (s *KeeperServer) Shutdown(ctx context.Context) error {
+	wait := make(chan struct{})
+	go func() {
+		s.server.GracefulStop()
+		close(wait)
+	}()
+
+	select {
+	case <-wait:
+		return nil
+	case <-ctx.Done():
+		if _, ok := ctx.Deadline(); ok {
+			return errors.New("grpc server graceful shutdown deadline exceeded")
+		}
+		return nil
+	}
+}
+
+func (s *KeeperServer) Close() {
+	s.server.Stop()
 }
 
 // TODO: Improve User ID extract logic
