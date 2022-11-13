@@ -32,6 +32,7 @@ func (s *ItemService) Update(ctx context.Context, userID string, item Item) erro
 		return err
 	}
 	updatedItem := itemServiceToItemEntity(item, existedItem.ID, userID)
+	updatedItem.Name = existedItem.Name // Name can't be changed
 	updatedItem.UpdatedAt = time.Now()
 	return s.itemRepository.Update(ctx, updatedItem)
 }
