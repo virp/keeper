@@ -10,6 +10,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	"keeper/internal/repository"
+	"keeper/internal/services"
 )
 
 func Errors() grpc.UnaryServerInterceptor {
@@ -31,6 +32,12 @@ func Errors() grpc.UnaryServerInterceptor {
 				wrappedError = status.Error(codes.Unauthenticated, "authentication required")
 			case errors.Is(err, repository.ErrTokenExpired):
 				wrappedError = status.Error(codes.Unauthenticated, "authentication required")
+			case errors.Is(err, repository.ErrUserNotFound):
+				wrappedError = status.Error(codes.Unauthenticated, "wrong login or password")
+			case errors.Is(err, services.ErrUserInvalidPassword):
+				wrappedError = status.Error(codes.Unauthenticated, "wrong login or password")
+			case errors.Is(err, repository.ErrUserAlreadyExist):
+				wrappedError = status.Error(codes.AlreadyExists, "user login already exist")
 			default:
 				wrappedError = status.Error(codes.Internal, "internal server error")
 			}

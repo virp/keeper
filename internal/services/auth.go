@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"keeper/internal/entity"
-	"keeper/internal/repository"
 )
 
 var (
@@ -38,26 +37,6 @@ func NewAuthService(
 func (s *AuthService) Auth(ctx context.Context, login string, password string) (string, error) {
 	user, err := s.userRepository.GetByLogin(ctx, login)
 	if err != nil {
-		if errors.Is(err, repository.ErrUserNotFound) {
-			passwordHash, err := s.passwordHasher.Generate(password)
-			if err != nil {
-				return "", fmt.Errorf("password hash generate: %w", err)
-			}
-			user := entity.User{
-				ID:           s.idGenerator.Generate(),
-				Login:        login,
-				PasswordHash: passwordHash,
-				CreatedAt:    time.Now(),
-			}
-			if err := s.userRepository.Create(ctx, user); err != nil {
-				return "", fmt.Errorf("user creare: %w", err)
-			}
-			token, err := s.tokenRepository.CreateToken(ctx, user)
-			if err != nil {
-				return "", fmt.Errorf("new user token generate: %w", err)
-			}
-			return token, nil
-		}
 		return "", err
 	}
 
@@ -68,6 +47,27 @@ func (s *AuthService) Auth(ctx context.Context, login string, password string) (
 	token, err := s.tokenRepository.CreateToken(ctx, user)
 	if err != nil {
 		return "", fmt.Errorf("user token generate: %w", err)
+	}
+	return token, nil
+}
+
+func (s *AuthService) Register(ctx context.Context, login string, password string) (string, error) {
+	passwordHash, err := s.passwordHasher.Generate(password)
+	if err != nil {
+		return "", fmt.Errorf("password hash generate: %w", err)
+	}
+	user := entity.User{
+		ID:           s.idGenerator.Generate(),
+		Login:        login,
+		PasswordHash: passwordHash,
+		CreatedAt:    time.Now(),
+	}
+	if err := s.userRepository.Create(ctx, user); err != nil {
+		return "", err
+	}
+	token, err := s.tokenRepository.CreateToken(ctx, user)
+	if err != nil {
+		return "", fmt.Errorf("new user token generate: %w", err)
 	}
 	return token, nil
 }

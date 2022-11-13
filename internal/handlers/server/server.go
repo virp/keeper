@@ -14,6 +14,7 @@ import (
 
 type AuthService interface {
 	Auth(ctx context.Context, login string, password string) (string, error)
+	Register(ctx context.Context, login string, password string) (string, error)
 }
 
 type TokenService interface {
@@ -55,7 +56,8 @@ func (s *KeeperServer) Serve(listen net.Listener) error {
 			interceptor.Auth(
 				s.tokenService,
 				map[string]bool{
-					"/keeper.KeeperService/Login": true,
+					"/keeper.KeeperService/Login":    true,
+					"/keeper.KeeperService/Register": true,
 				},
 			),
 		),
