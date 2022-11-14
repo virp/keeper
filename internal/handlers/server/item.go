@@ -58,12 +58,8 @@ func (s *KeeperServer) GetItemsList(ctx context.Context, _ *pb.GetItemsListReque
 	if err != nil {
 		return nil, err
 	}
-	var list []*pb.ItemList
-	for _, item := range items {
-		list = append(list, itemEntityToItemListMessage(item))
-	}
 	response := pb.GetItemsListResponse{
-		Items: list,
+		Names: items,
 	}
 	return &response, nil
 }
@@ -96,14 +92,6 @@ func itemEntityToItemMessage(item services.Item) *pb.Item {
 			Value: m.Value,
 		}
 		msg.Metadata = append(msg.Metadata, &metadata)
-	}
-	return &msg
-}
-
-func itemEntityToItemListMessage(item services.Item) *pb.ItemList {
-	msg := pb.ItemList{
-		Name: item.Name,
-		Type: item.Type,
 	}
 	return &msg
 }

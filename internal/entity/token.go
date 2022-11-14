@@ -6,6 +6,6 @@ import (
 
 type Token struct {
 	ID        string
-	UserID    string
+	UserLogin string
 	CreatedAt time.Time
 }

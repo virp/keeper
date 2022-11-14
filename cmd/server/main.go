@@ -12,8 +12,9 @@ import (
 	"go.uber.org/zap"
 
 	"keeper/internal/handlers/server"
-	"keeper/internal/repository/memory"
+	"keeper/internal/repository/cloud"
 	"keeper/internal/services"
+	s3 "keeper/pkg/cloud"
 	"keeper/pkg/logger"
 )
 
@@ -44,8 +45,11 @@ func run(log *zap.SugaredLogger) error {
 	passwordHasher := services.BCryptPasswordHasher{
 		Cost: 13,
 	}
-	userRepository := memory.NewUserMemoryRepository()
-	tokenRepository := memory.NewTokenMemoryRepository()
+	//userRepository := memory.NewUserRepository()
+	s3Client := s3.NewS3Client("key", "secret", "us-east-1", "http://localhost:4566")
+	userRepository := cloud.NewUserRepository(s3Client, "keeper")
+	//tokenRepository := memory.NewTokenRepository(24 * time.Hour)
+	tokenRepository := cloud.NewTokenRepository(s3Client, "keeper", 1*time.Hour)
 	authService := services.NewAuthService(
 		&idGenerator,
 		&passwordHasher,
@@ -56,7 +60,8 @@ func run(log *zap.SugaredLogger) error {
 		userRepository,
 		tokenRepository,
 	)
-	itemRepository := memory.NewItemMemoryRepository()
+	//itemRepository := memory.NewItemRepository()
+	itemRepository := cloud.NewItemRepository(s3Client, "keeper")
 	itemService := services.NewItemService(&idGenerator, itemRepository)
 
 	s := server.NewKeeperServer(server.KeeperServerConfig{

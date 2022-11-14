@@ -50,6 +50,7 @@ func (s *ItemService) Update(ctx context.Context, userID string, item Item) erro
 	}
 	updatedItem := itemServiceToItemEntity(item, existedItem.ID, userID)
 	updatedItem.Name = existedItem.Name // Name can't be changed
+	updatedItem.CreatedAt = existedItem.CreatedAt
 	updatedItem.UpdatedAt = time.Now()
 	return s.itemRepository.Update(ctx, updatedItem)
 }
@@ -70,16 +71,12 @@ func (s *ItemService) Delete(ctx context.Context, userID string, name string) er
 	return s.itemRepository.Delete(ctx, item)
 }
 
-func (s *ItemService) List(ctx context.Context, userID string) ([]Item, error) {
+func (s *ItemService) List(ctx context.Context, userID string) ([]string, error) {
 	items, err := s.itemRepository.FindByUser(ctx, userID)
 	if err != nil {
-		return []Item{}, err
+		return []string{}, err
 	}
-	list := make([]Item, 0, len(items))
-	for _, item := range items {
-		list = append(list, itemEntityToItemService(item))
-	}
-	return list, nil
+	return items, nil
 }
 
 func itemServiceToItemEntity(in Item, id string, userID string) entity.Item {

@@ -8,19 +8,19 @@ import (
 	"keeper/internal/repository"
 )
 
-type ItemMemoryRepository struct {
+type ItemRepository struct {
 	mu    *sync.RWMutex
 	items map[string]map[string]entity.Item
 }
 
-func NewItemMemoryRepository() *ItemMemoryRepository {
-	return &ItemMemoryRepository{
+func NewItemRepository() *ItemRepository {
+	return &ItemRepository{
 		mu:    new(sync.RWMutex),
 		items: map[string]map[string]entity.Item{},
 	}
 }
 
-func (r *ItemMemoryRepository) Create(_ context.Context, item entity.Item) error {
+func (r *ItemRepository) Create(_ context.Context, item entity.Item) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -35,7 +35,7 @@ func (r *ItemMemoryRepository) Create(_ context.Context, item entity.Item) error
 	return nil
 }
 
-func (r *ItemMemoryRepository) Update(_ context.Context, item entity.Item) error {
+func (r *ItemRepository) Update(_ context.Context, item entity.Item) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -50,7 +50,7 @@ func (r *ItemMemoryRepository) Update(_ context.Context, item entity.Item) error
 	return repository.ErrItemNotFound
 }
 
-func (r *ItemMemoryRepository) GetByUserIDAndName(_ context.Context, userID string, name string) (entity.Item, error) {
+func (r *ItemRepository) GetByUserIDAndName(_ context.Context, userID string, name string) (entity.Item, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
@@ -61,7 +61,7 @@ func (r *ItemMemoryRepository) GetByUserIDAndName(_ context.Context, userID stri
 	return entity.Item{}, repository.ErrItemNotFound
 }
 
-func (r *ItemMemoryRepository) Delete(_ context.Context, item entity.Item) error {
+func (r *ItemRepository) Delete(_ context.Context, item entity.Item) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -73,17 +73,17 @@ func (r *ItemMemoryRepository) Delete(_ context.Context, item entity.Item) error
 	return nil
 }
 
-func (r *ItemMemoryRepository) FindByUser(_ context.Context, userID string) ([]entity.Item, error) {
+func (r *ItemRepository) FindByUser(_ context.Context, userID string) ([]string, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
 	if items, ok := r.items[userID]; ok {
-		list := make([]entity.Item, 0, len(items))
+		list := make([]string, 0, len(items))
 		for _, item := range items {
-			list = append(list, item)
+			list = append(list, item.Name)
 		}
 		return list, nil
 	}
 
-	return []entity.Item{}, nil
+	return []string{}, nil
 }

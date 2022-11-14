@@ -28,7 +28,7 @@ type ItemService interface {
 	Update(ctx context.Context, userID string, item services.Item) error
 	Get(ctx context.Context, userID string, name string) (services.Item, error)
 	Delete(ctx context.Context, userID string, name string) error
-	List(ctx context.Context, userID string) ([]services.Item, error)
+	List(ctx context.Context, userID string) ([]string, error)
 }
 
 type KeeperServerConfig struct {

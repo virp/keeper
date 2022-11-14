@@ -23,5 +23,5 @@ func (s *TokenService) GetUser(ctx context.Context, token string) (entity.User, 
 	if err != nil {
 		return entity.User{}, err
 	}
-	return s.userRepository.GetByID(ctx, te.UserID)
+	return s.userRepository.GetByLogin(ctx, te.UserLogin)
 }

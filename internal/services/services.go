@@ -21,7 +21,6 @@ type PasswordHasher interface {
 type UserRepository interface {
 	Create(ctx context.Context, user entity.User) error
 	GetByLogin(ctx context.Context, login string) (entity.User, error)
-	GetByID(ctx context.Context, id string) (entity.User, error)
 }
 
 type TokenRepository interface {
@@ -34,7 +33,7 @@ type ItemRepository interface {
 	Update(ctx context.Context, item entity.Item) error
 	GetByUserIDAndName(ctx context.Context, userID string, name string) (entity.Item, error)
 	Delete(ctx context.Context, item entity.Item) error
-	FindByUser(ctx context.Context, userID string) ([]entity.Item, error)
+	FindByUser(ctx context.Context, userID string) ([]string, error)
 }
 
 type UuidGenerator struct {

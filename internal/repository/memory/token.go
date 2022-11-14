@@ -13,23 +13,21 @@ import (
 	"keeper/internal/repository"
 )
 
-const (
-	tokenLifetime = 24 * time.Hour
-)
-
-type TokenMemoryRepository struct {
-	mu     *sync.RWMutex
-	tokens map[string]entity.Token
+type TokenRepository struct {
+	mu       *sync.RWMutex
+	tokens   map[string]entity.Token
+	lifetime time.Duration
 }
 
-func NewTokenMemoryRepository() *TokenMemoryRepository {
-	return &TokenMemoryRepository{
-		mu:     new(sync.RWMutex),
-		tokens: map[string]entity.Token{},
+func NewTokenRepository(lifetime time.Duration) *TokenRepository {
+	return &TokenRepository{
+		mu:       new(sync.RWMutex),
+		tokens:   map[string]entity.Token{},
+		lifetime: lifetime,
 	}
 }
 
-func (r *TokenMemoryRepository) CreateToken(_ context.Context, user entity.User) (string, error) {
+func (r *TokenRepository) CreateToken(_ context.Context, user entity.User) (string, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -42,14 +40,14 @@ func (r *TokenMemoryRepository) CreateToken(_ context.Context, user entity.User)
 
 	r.tokens[token] = entity.Token{
 		ID:        token,
-		UserID:    user.ID,
+		UserLogin: user.Login,
 		CreatedAt: time.Now(),
 	}
 
 	return token, nil
 }
 
-func (r *TokenMemoryRepository) GetToken(_ context.Context, id string) (entity.Token, error) {
+func (r *TokenRepository) GetToken(_ context.Context, id string) (entity.Token, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
@@ -57,7 +55,7 @@ func (r *TokenMemoryRepository) GetToken(_ context.Context, id string) (entity.T
 	if !ok {
 		return entity.Token{}, repository.ErrTokenNotFound
 	}
-	if time.Since(token.CreatedAt) > tokenLifetime {
+	if time.Since(token.CreatedAt) > r.lifetime {
 		r.mu.RUnlock()
 		r.mu.Lock()
 		defer r.mu.Unlock()
