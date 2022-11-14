@@ -9,6 +9,11 @@ import (
 	"keeper/internal/entity"
 )
 
+const (
+	loginMinLength    = 4
+	passwordMinLength = 6
+)
+
 var (
 	ErrUserInvalidPassword = errors.New("invalid user password")
 )
@@ -52,6 +57,25 @@ func (s *AuthService) Auth(ctx context.Context, login string, password string) (
 }
 
 func (s *AuthService) Register(ctx context.Context, login string, password string) (string, error) {
+	var fields FieldErrors
+	if len(login) < loginMinLength {
+		field := FieldError{
+			Field: "login",
+			Error: fmt.Sprintf("length should be greater or equal %d", loginMinLength),
+		}
+		fields = append(fields, field)
+	}
+	if len(password) < passwordMinLength {
+		field := FieldError{
+			Field: "password",
+			Error: fmt.Sprintf("length should be greater or equal %d", passwordMinLength),
+		}
+		fields = append(fields, field)
+	}
+	if len(fields) > 0 {
+		return "", fields
+	}
+
 	passwordHash, err := s.passwordHasher.Generate(password)
 	if err != nil {
 		return "", fmt.Errorf("password hash generate: %w", err)

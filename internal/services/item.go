@@ -2,9 +2,14 @@ package services
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"keeper/internal/entity"
+)
+
+const (
+	itemNameMinLength = 1
 )
 
 type ItemService struct {
@@ -20,6 +25,18 @@ func NewItemService(idGenerator IdGenerator, itemRepository ItemRepository) *Ite
 }
 
 func (s *ItemService) Create(ctx context.Context, userID string, item Item) error {
+	var fields FieldErrors
+	if len(item.Name) < itemNameMinLength {
+		field := FieldError{
+			Field: "item.name",
+			Error: fmt.Sprintf("length should be greater or equal %d", itemNameMinLength),
+		}
+		fields = append(fields, field)
+	}
+	if len(fields) > 0 {
+		return fields
+	}
+
 	createdItem := itemServiceToItemEntity(item, s.idGenerator.Generate(), userID)
 	createdItem.CreatedAt = time.Now()
 	createdItem.UpdatedAt = createdItem.CreatedAt

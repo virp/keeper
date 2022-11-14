@@ -39,6 +39,8 @@ func Errors(log *zap.SugaredLogger) grpc.UnaryServerInterceptor {
 				wrappedError = status.Error(codes.Unauthenticated, "wrong login or password")
 			case errors.Is(err, repository.ErrUserAlreadyExist):
 				wrappedError = status.Error(codes.AlreadyExists, "user login already exist")
+			case services.IsFieldErrors(err):
+				wrappedError = status.Error(codes.InvalidArgument, err.Error())
 			default:
 				wrappedError = status.Error(codes.Internal, "internal server error")
 			}
