@@ -97,6 +97,12 @@ func run(log *zap.SugaredLogger) error {
 
 	log.Infow("starting service", "version", build)
 
+	out, err := conf.String(&cfg)
+	if err != nil {
+		return fmt.Errorf("generating config for output: %w", err)
+	}
+	log.Infow("startup", "config", out)
+
 	listen, err := net.Listen("tcp", cfg.Address)
 	if err != nil {
 		panic(err)
