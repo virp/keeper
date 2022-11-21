@@ -14,11 +14,13 @@ import (
 	"keeper/internal/repository"
 )
 
+// ItemRepository S3 item storage.
 type ItemRepository struct {
 	bucket string
 	client *s3.Client
 }
 
+// NewItemRepository construct ItemRepository.
 func NewItemRepository(client *s3.Client, bucket string) *ItemRepository {
 	return &ItemRepository{
 		bucket: bucket,
@@ -26,6 +28,7 @@ func NewItemRepository(client *s3.Client, bucket string) *ItemRepository {
 	}
 }
 
+// Create store item in storage.
 func (r *ItemRepository) Create(ctx context.Context, item entity.Item) error {
 	if _, err := r.GetByUserIDAndName(ctx, item.UserID, item.Name); err == nil {
 		return repository.ErrItemAlreadyExist
@@ -50,6 +53,7 @@ func (r *ItemRepository) Create(ctx context.Context, item entity.Item) error {
 	return nil
 }
 
+// Update store new version item in storage.
 func (r *ItemRepository) Update(ctx context.Context, item entity.Item) error {
 	if _, err := r.GetByUserIDAndName(ctx, item.UserID, item.Name); err != nil {
 		return repository.ErrItemNotFound
@@ -74,6 +78,7 @@ func (r *ItemRepository) Update(ctx context.Context, item entity.Item) error {
 	return nil
 }
 
+// GetByUserIDAndName return item from storage by user ID and item name.
 func (r *ItemRepository) GetByUserIDAndName(ctx context.Context, userID string, name string) (entity.Item, error) {
 	itemFileName := getItemFileName(userID, name)
 	params := s3.GetObjectInput{
@@ -100,6 +105,7 @@ func (r *ItemRepository) GetByUserIDAndName(ctx context.Context, userID string, 
 	return item, nil
 }
 
+// Delete remove item from storage.
 func (r *ItemRepository) Delete(ctx context.Context, item entity.Item) error {
 	itemFileName := getItemFileName(item.UserID, item.Name)
 	params := s3.DeleteObjectInput{
@@ -114,6 +120,7 @@ func (r *ItemRepository) Delete(ctx context.Context, item entity.Item) error {
 	return nil
 }
 
+// FindByUser return item names list from storage for user ID.
 func (r *ItemRepository) FindByUser(ctx context.Context, userID string) ([]string, error) {
 	userFolderName := getUserFolderName(userID)
 	params := s3.ListObjectsV2Input{

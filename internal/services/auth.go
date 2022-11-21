@@ -18,6 +18,7 @@ var (
 	ErrUserInvalidPassword = errors.New("invalid user password")
 )
 
+// AuthService implement logic for working with users.
 type AuthService struct {
 	idGenerator     IdGenerator
 	passwordHasher  PasswordHasher
@@ -25,6 +26,7 @@ type AuthService struct {
 	tokenRepository TokenRepository
 }
 
+// NewAuthService construct new AuthService.
 func NewAuthService(
 	idGenerator IdGenerator,
 	passwordHasher PasswordHasher,
@@ -39,6 +41,7 @@ func NewAuthService(
 	}
 }
 
+// Auth check login and password and return new user token.
 func (s *AuthService) Auth(ctx context.Context, login string, password string) (string, error) {
 	user, err := s.userRepository.GetByLogin(ctx, login)
 	if err != nil {
@@ -56,6 +59,7 @@ func (s *AuthService) Auth(ctx context.Context, login string, password string) (
 	return token, nil
 }
 
+// Register creates new user and return new user token.
 func (s *AuthService) Register(ctx context.Context, login string, password string) (string, error) {
 	var fields FieldErrors
 	if len(login) < loginMinLength {

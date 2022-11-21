@@ -12,16 +12,19 @@ import (
 	pb "keeper/gen/service"
 )
 
+// ClientService implement logic for Keeper client application and work with GRPC server calls.
 type ClientService struct {
 	client pb.KeeperServiceClient
 }
 
+// NewClientService construct new ClientService.
 func NewClientService(client pb.KeeperServiceClient) *ClientService {
 	return &ClientService{
 		client: client,
 	}
 }
 
+// Register make Register rpc call.
 func (s *ClientService) Register(ctx context.Context, login string, password string) (string, error) {
 	req := pb.LoginRequest{
 		Login:    login,
@@ -35,6 +38,7 @@ func (s *ClientService) Register(ctx context.Context, login string, password str
 	return token, nil
 }
 
+// Login make Login rpc call.
 func (s *ClientService) Login(ctx context.Context, login string, password string) (string, error) {
 	req := pb.LoginRequest{
 		Login:    login,
@@ -48,6 +52,7 @@ func (s *ClientService) Login(ctx context.Context, login string, password string
 	return token, nil
 }
 
+// List make GetItemsList rpc call.
 func (s *ClientService) List(ctx context.Context, token string) ([]string, error) {
 	ctx = getOutgoingContext(ctx, token)
 	req := pb.GetItemsListRequest{}
@@ -59,6 +64,7 @@ func (s *ClientService) List(ctx context.Context, token string) ([]string, error
 	return items, nil
 }
 
+// Get make GetItem rpc call.
 func (s *ClientService) Get(ctx context.Context, token string, secret string, name string) (Item, error) {
 	ctx = getOutgoingContext(ctx, token)
 	req := pb.GetItemRequest{
@@ -89,6 +95,7 @@ func (s *ClientService) Get(ctx context.Context, token string, secret string, na
 	return item, nil
 }
 
+// Add make CreateItem rpc call.
 func (s *ClientService) Add(ctx context.Context, token string, secret string, item Item) error {
 	ctx = getOutgoingContext(ctx, token)
 	data, err := encryptData(secret, item.Data)
@@ -117,6 +124,7 @@ func (s *ClientService) Add(ctx context.Context, token string, secret string, it
 	return nil
 }
 
+// Delete make DeleteItem rpc call.
 func (s *ClientService) Delete(ctx context.Context, token string, name string) error {
 	ctx = getOutgoingContext(ctx, token)
 	req := pb.DeleteItemRequest{

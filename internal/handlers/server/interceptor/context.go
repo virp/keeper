@@ -12,11 +12,13 @@ type ctxKey = int
 
 const key ctxKey = 1
 
+// Values struct store GRPC request context.
 type Values struct {
 	TraceID string
 	Now     time.Time
 }
 
+// GetValues returns Values stored in context.
 func GetValues(ctx context.Context) *Values {
 	v, ok := ctx.Value(key).(*Values)
 	if !ok {
@@ -28,6 +30,7 @@ func GetValues(ctx context.Context) *Values {
 	return v
 }
 
+// Context interceptor inject additional values to GRPC request context.
 func Context() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		v := Values{

@@ -13,11 +13,13 @@ import (
 	"keeper/internal/repository"
 )
 
+// UserRepository S3 user storage.
 type UserRepository struct {
 	bucket string
 	client *s3.Client
 }
 
+// NewUserRepository construct UserRepository.
 func NewUserRepository(client *s3.Client, bucket string) *UserRepository {
 	return &UserRepository{
 		bucket: bucket,
@@ -25,28 +27,7 @@ func NewUserRepository(client *s3.Client, bucket string) *UserRepository {
 	}
 }
 
-//func (r *UserRepository) List(ctx context.Context) ([]string, error) {
-//	bucketName := "keeper"
-//	params := s3.ListObjectsV2Input{
-//		Bucket: &bucketName,
-//	}
-//	p := s3.NewListObjectsV2Paginator(r.client, &params, func(options *s3.ListObjectsV2PaginatorOptions) {
-//		options.Limit = 10
-//	})
-//
-//	var items []string
-//	for p.HasMorePages() {
-//		page, err := p.NextPage(ctx)
-//		if err != nil {
-//			return []string{}, fmt.Errorf("get list page: %w", err)
-//		}
-//		for _, item := range page.Contents {
-//			items = append(items, *item.Key)
-//		}
-//	}
-//	return items, nil
-//}
-
+// Create store user entity in storage.
 func (r *UserRepository) Create(ctx context.Context, user entity.User) error {
 	if _, err := r.GetByLogin(ctx, user.Login); err == nil {
 		return repository.ErrUserAlreadyExist
@@ -71,6 +52,7 @@ func (r *UserRepository) Create(ctx context.Context, user entity.User) error {
 	return nil
 }
 
+// GetByLogin return user by login from storage.
 func (r *UserRepository) GetByLogin(ctx context.Context, login string) (entity.User, error) {
 	userFileName := getUserFileName(login)
 	params := s3.GetObjectInput{

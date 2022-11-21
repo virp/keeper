@@ -8,6 +8,7 @@ import (
 	"google.golang.org/grpc"
 )
 
+// Panics interceptor catch all panics and wrap it into error.
 func Panics() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
 		defer func() {

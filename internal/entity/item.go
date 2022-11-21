@@ -4,6 +4,7 @@ import (
 	"time"
 )
 
+// Item struct represent business entity for stored items in Keeper.
 type Item struct {
 	ID        string
 	UserID    string

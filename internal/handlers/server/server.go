@@ -14,15 +14,18 @@ import (
 	"keeper/internal/services"
 )
 
+// AuthService interface set requirements for auth rpc.
 type AuthService interface {
 	Auth(ctx context.Context, login string, password string) (string, error)
 	Register(ctx context.Context, login string, password string) (string, error)
 }
 
+// TokenService interface set requirements for auth rpc.
 type TokenService interface {
 	GetUser(ctx context.Context, token string) (entity.User, error)
 }
 
+// ItemService interface set requirements for item rpc.
 type ItemService interface {
 	Create(ctx context.Context, userID string, item services.Item) error
 	Update(ctx context.Context, userID string, item services.Item) error
@@ -31,6 +34,7 @@ type ItemService interface {
 	List(ctx context.Context, userID string) ([]string, error)
 }
 
+// KeeperServerConfig contains required dependencies for KeeperServer.
 type KeeperServerConfig struct {
 	Log   *zap.SugaredLogger
 	Auth  AuthService
@@ -38,6 +42,7 @@ type KeeperServerConfig struct {
 	Item  ItemService
 }
 
+// KeeperServer implement GRPC handlers for Keeper server.
 type KeeperServer struct {
 	pb.UnimplementedKeeperServiceServer
 	server       *grpc.Server
@@ -47,6 +52,7 @@ type KeeperServer struct {
 	itemService  ItemService
 }
 
+// NewKeeperServer constructs new KeeperServer.
 func NewKeeperServer(cfg KeeperServerConfig) *KeeperServer {
 	s := KeeperServer{
 		log:          cfg.Log,
@@ -57,6 +63,7 @@ func NewKeeperServer(cfg KeeperServerConfig) *KeeperServer {
 	return &s
 }
 
+// Serve run GRPC server.
 func (s *KeeperServer) Serve(listen net.Listener) error {
 	server := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
@@ -78,6 +85,7 @@ func (s *KeeperServer) Serve(listen net.Listener) error {
 	return server.Serve(listen)
 }
 
+// Shutdown run graceful shutdown for GRPC server.
 func (s *KeeperServer) Shutdown(ctx context.Context) error {
 	wait := make(chan struct{})
 	go func() {
@@ -96,11 +104,11 @@ func (s *KeeperServer) Shutdown(ctx context.Context) error {
 	}
 }
 
+// Close immediately close GRPC server.
 func (s *KeeperServer) Close() {
 	s.server.Stop()
 }
 
-// TODO: Improve User ID extract logic
 func getUserIDFromContext(ctx context.Context) string {
 	userID, ok := ctx.Value("userID").(string)
 	if !ok {

@@ -15,10 +15,12 @@ const (
 	tokenField = "token"
 )
 
+// TokenService interface set requirements for Auth interceptor.
 type TokenService interface {
 	GetUser(ctx context.Context, token string) (entity.User, error)
 }
 
+// Auth interceptor implement user auth validation.
 func Auth(tokenService TokenService, skips map[string]bool) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		if skip, ok := skips[info.FullMethod]; ok && skip {
@@ -41,7 +43,6 @@ func Auth(tokenService TokenService, skips map[string]bool) grpc.UnaryServerInte
 		if err != nil {
 			return nil, err
 		}
-		// TODO: Improve User ID save logic
 		ctx = context.WithValue(ctx, "userID", user.ID)
 
 		return handler(ctx, req)

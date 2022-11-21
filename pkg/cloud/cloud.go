@@ -1,3 +1,4 @@
+// Package cloud provides a convenience functions for interacting with cloud services.
 package cloud
 
 import (
@@ -6,6 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
+// NewS3Client constructing AWS S3 client.
 func NewS3Client(key string, secret string, region string, endpoint string) *s3.Client {
 	customResolver := aws.EndpointResolverWithOptionsFunc(func(s, r string, o ...interface{}) (aws.Endpoint, error) {
 		if s == s3.ServiceID && region == r && endpoint != "" {

@@ -8,11 +8,13 @@ import (
 	"keeper/internal/repository"
 )
 
+// ItemRepository in memory item storage.
 type ItemRepository struct {
 	mu    *sync.RWMutex
 	items map[string]map[string]entity.Item
 }
 
+// NewItemRepository construct ItemRepository.
 func NewItemRepository() *ItemRepository {
 	return &ItemRepository{
 		mu:    new(sync.RWMutex),
@@ -20,6 +22,7 @@ func NewItemRepository() *ItemRepository {
 	}
 }
 
+// Create store item in storage.
 func (r *ItemRepository) Create(_ context.Context, item entity.Item) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -35,6 +38,7 @@ func (r *ItemRepository) Create(_ context.Context, item entity.Item) error {
 	return nil
 }
 
+// Update store new version item in storage.
 func (r *ItemRepository) Update(_ context.Context, item entity.Item) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -50,6 +54,7 @@ func (r *ItemRepository) Update(_ context.Context, item entity.Item) error {
 	return repository.ErrItemNotFound
 }
 
+// GetByUserIDAndName return item from storage by user ID and item name.
 func (r *ItemRepository) GetByUserIDAndName(_ context.Context, userID string, name string) (entity.Item, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -61,6 +66,7 @@ func (r *ItemRepository) GetByUserIDAndName(_ context.Context, userID string, na
 	return entity.Item{}, repository.ErrItemNotFound
 }
 
+// Delete remove item from storage.
 func (r *ItemRepository) Delete(_ context.Context, item entity.Item) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -73,6 +79,7 @@ func (r *ItemRepository) Delete(_ context.Context, item entity.Item) error {
 	return nil
 }
 
+// FindByUser return item names list from storage for user ID.
 func (r *ItemRepository) FindByUser(_ context.Context, userID string) ([]string, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()

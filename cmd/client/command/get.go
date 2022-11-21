@@ -9,6 +9,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+// Get client command for receiving item details.
 func (c *Command) Get(ctx context.Context, name string) error {
 	token, secret, err := readCredentials()
 	if err != nil {

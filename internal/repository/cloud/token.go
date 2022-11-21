@@ -18,12 +18,14 @@ import (
 	"keeper/internal/repository"
 )
 
+// TokenRepository S3 token storage.
 type TokenRepository struct {
 	bucket   string
 	client   *s3.Client
 	lifetime time.Duration
 }
 
+// NewTokenRepository construct TokenRepository.
 func NewTokenRepository(client *s3.Client, bucket string, lifetime time.Duration) *TokenRepository {
 	return &TokenRepository{
 		bucket:   bucket,
@@ -32,6 +34,7 @@ func NewTokenRepository(client *s3.Client, bucket string, lifetime time.Duration
 	}
 }
 
+// CreateToken creates new random user token and store it.
 func (r *TokenRepository) CreateToken(ctx context.Context, user entity.User) (string, error) {
 	var sb strings.Builder
 	sb.WriteString(user.ID)
@@ -65,6 +68,7 @@ func (r *TokenRepository) CreateToken(ctx context.Context, user entity.User) (st
 	return token, nil
 }
 
+// GetToken return user token by token ID.
 func (r *TokenRepository) GetToken(ctx context.Context, id string) (entity.Token, error) {
 	tokenFileName := getTokenFileName(id)
 	params := s3.GetObjectInput{

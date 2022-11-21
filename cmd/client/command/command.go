@@ -12,6 +12,7 @@ import (
 	"keeper/internal/services"
 )
 
+// ClientService interface describe requirements for client service
 type ClientService interface {
 	Register(ctx context.Context, login, password string) (string, error)
 	Login(ctx context.Context, login, password string) (string, error)
@@ -21,11 +22,13 @@ type ClientService interface {
 	Delete(ctx context.Context, token string, name string) error
 }
 
+// Command implement logic for client commands.
 type Command struct {
 	log    *zap.SugaredLogger
 	client ClientService
 }
 
+// NewCommand construct Command.
 func NewCommand(log *zap.SugaredLogger, client ClientService) *Command {
 	return &Command{
 		log:    log,

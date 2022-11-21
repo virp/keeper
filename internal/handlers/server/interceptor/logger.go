@@ -10,6 +10,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+// Logger interceptor log all GRPC requests.
 func Logger(log *zap.SugaredLogger) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		v := GetValues(ctx)

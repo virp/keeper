@@ -13,6 +13,7 @@ import (
 	"keeper/internal/services"
 )
 
+// Errors interceptor wrap errors in GRPC codes and log original error message.
 func Errors(log *zap.SugaredLogger) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		resp, err := handler(ctx, req)

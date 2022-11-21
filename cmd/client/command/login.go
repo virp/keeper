@@ -10,6 +10,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+// Login client command for user login.
 func (c *Command) Login(ctx context.Context) error {
 	var login, password string
 	fmt.Print("Login: ")

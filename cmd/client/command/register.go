@@ -8,6 +8,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+// Register client command for user registration.
 func (c *Command) Register(ctx context.Context) error {
 	var login, password string
 	fmt.Print("Login: ")

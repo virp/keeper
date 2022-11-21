@@ -7,6 +7,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+// List client command for receiving items list.
 func (c *Command) List(ctx context.Context) error {
 	token, _, err := readCredentials()
 	if err != nil {

@@ -12,11 +12,13 @@ const (
 	itemNameMinLength = 1
 )
 
+// ItemService implement logic for working with items.
 type ItemService struct {
 	idGenerator    IdGenerator
 	itemRepository ItemRepository
 }
 
+// NewItemService construct new ItemService.
 func NewItemService(idGenerator IdGenerator, itemRepository ItemRepository) *ItemService {
 	return &ItemService{
 		idGenerator:    idGenerator,
@@ -24,6 +26,7 @@ func NewItemService(idGenerator IdGenerator, itemRepository ItemRepository) *Ite
 	}
 }
 
+// Create save new item for user in storage.
 func (s *ItemService) Create(ctx context.Context, userID string, item Item) error {
 	var fields FieldErrors
 	if len(item.Name) < itemNameMinLength {
@@ -43,6 +46,7 @@ func (s *ItemService) Create(ctx context.Context, userID string, item Item) erro
 	return s.itemRepository.Create(ctx, createdItem)
 }
 
+// Update save new version of item for user in storage.
 func (s *ItemService) Update(ctx context.Context, userID string, item Item) error {
 	existedItem, err := s.itemRepository.GetByUserIDAndName(ctx, userID, item.Name)
 	if err != nil {
@@ -55,6 +59,7 @@ func (s *ItemService) Update(ctx context.Context, userID string, item Item) erro
 	return s.itemRepository.Update(ctx, updatedItem)
 }
 
+// Get receive user item from storage.
 func (s *ItemService) Get(ctx context.Context, userID string, name string) (Item, error) {
 	item, err := s.itemRepository.GetByUserIDAndName(ctx, userID, name)
 	if err != nil {
@@ -63,6 +68,7 @@ func (s *ItemService) Get(ctx context.Context, userID string, name string) (Item
 	return itemEntityToItemService(item), nil
 }
 
+// Delete remove user item from storage.
 func (s *ItemService) Delete(ctx context.Context, userID string, name string) error {
 	item, err := s.itemRepository.GetByUserIDAndName(ctx, userID, name)
 	if err != nil {
@@ -71,6 +77,7 @@ func (s *ItemService) Delete(ctx context.Context, userID string, name string) er
 	return s.itemRepository.Delete(ctx, item)
 }
 
+// List receive user items list from storage.
 func (s *ItemService) List(ctx context.Context, userID string) ([]string, error) {
 	items, err := s.itemRepository.FindByUser(ctx, userID)
 	if err != nil {

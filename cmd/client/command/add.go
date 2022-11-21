@@ -21,6 +21,7 @@ var (
 	}
 )
 
+// Add client command for creating and storing new item.
 func (c *Command) Add(ctx context.Context, name string, itemType string) error {
 	token, secret, err := readCredentials()
 	if err != nil {

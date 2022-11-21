@@ -13,12 +13,14 @@ import (
 	"keeper/internal/repository"
 )
 
+// TokenRepository in memory token storage.
 type TokenRepository struct {
 	mu       *sync.RWMutex
 	tokens   map[string]entity.Token
 	lifetime time.Duration
 }
 
+// NewTokenRepository construct TokenRepository.
 func NewTokenRepository(lifetime time.Duration) *TokenRepository {
 	return &TokenRepository{
 		mu:       new(sync.RWMutex),
@@ -27,6 +29,7 @@ func NewTokenRepository(lifetime time.Duration) *TokenRepository {
 	}
 }
 
+// CreateToken creates new random user token and store it.
 func (r *TokenRepository) CreateToken(_ context.Context, user entity.User) (string, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -47,6 +50,7 @@ func (r *TokenRepository) CreateToken(_ context.Context, user entity.User) (stri
 	return token, nil
 }
 
+// GetToken return user token by token ID.
 func (r *TokenRepository) GetToken(_ context.Context, id string) (entity.Token, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()

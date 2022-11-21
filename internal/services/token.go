@@ -6,11 +6,13 @@ import (
 	"keeper/internal/entity"
 )
 
+// TokenService implement logic for working with user tokens.
 type TokenService struct {
 	userRepository  UserRepository
 	tokenRepository TokenRepository
 }
 
+// NewTokenService construct new TokenService.
 func NewTokenService(userRepository UserRepository, tokenRepository TokenRepository) *TokenService {
 	return &TokenService{
 		userRepository:  userRepository,
@@ -18,6 +20,7 @@ func NewTokenService(userRepository UserRepository, tokenRepository TokenReposit
 	}
 }
 
+// GetUser returns user by token.
 func (s *TokenService) GetUser(ctx context.Context, token string) (entity.User, error) {
 	te, err := s.tokenRepository.GetToken(ctx, token)
 	if err != nil {

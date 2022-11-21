@@ -7,6 +7,7 @@ import (
 	"keeper/internal/services"
 )
 
+// CreateItem implement rpc for item creation call.
 func (s *KeeperServer) CreateItem(ctx context.Context, in *pb.CreateItemRequest) (*pb.CreateItemResponse, error) {
 	userID := getUserIDFromContext(ctx)
 	item := itemMessageToItemEntity(in.GetItem())
@@ -18,6 +19,7 @@ func (s *KeeperServer) CreateItem(ctx context.Context, in *pb.CreateItemRequest)
 	return &response, nil
 }
 
+// UpdateItem implement rpc for item updating call.
 func (s *KeeperServer) UpdateItem(ctx context.Context, in *pb.UpdateItemRequest) (*pb.UpdateItemResponse, error) {
 	userID := getUserIDFromContext(ctx)
 	item := itemMessageToItemEntity(in.GetItem())
@@ -29,6 +31,7 @@ func (s *KeeperServer) UpdateItem(ctx context.Context, in *pb.UpdateItemRequest)
 	return &response, nil
 }
 
+// GetItem implement rpc for item receiving call.
 func (s *KeeperServer) GetItem(ctx context.Context, in *pb.GetItemRequest) (*pb.GetItemResponse, error) {
 	userID := getUserIDFromContext(ctx)
 	item, err := s.itemService.Get(ctx, userID, in.GetName())
@@ -42,6 +45,7 @@ func (s *KeeperServer) GetItem(ctx context.Context, in *pb.GetItemRequest) (*pb.
 	return &response, nil
 }
 
+// DeleteItem implement rpc for item deletion call.
 func (s *KeeperServer) DeleteItem(ctx context.Context, in *pb.DeleteItemRequest) (*pb.DeleteItemResponse, error) {
 	userID := getUserIDFromContext(ctx)
 	if err := s.itemService.Delete(ctx, userID, in.GetName()); err != nil {
@@ -52,6 +56,7 @@ func (s *KeeperServer) DeleteItem(ctx context.Context, in *pb.DeleteItemRequest)
 	return &response, nil
 }
 
+// GetItemsList implement rpc for receiving items list call.
 func (s *KeeperServer) GetItemsList(ctx context.Context, _ *pb.GetItemsListRequest) (*pb.GetItemsListResponse, error) {
 	userID := getUserIDFromContext(ctx)
 	items, err := s.itemService.List(ctx, userID)
